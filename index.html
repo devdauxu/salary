@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ tính lương Gross - Net Chuẩn 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Dark Mode Toggle -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Chuyển đổi giao diện sáng/tối" data-tooltip="Chế độ tối (Alt+D)">
+        <span class="theme-toggle-icon sun">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+        </span>
+        <span class="theme-toggle-icon moon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+        </span>
+    </button>
+
+    <div class="container">
+        <header class="header">
+            <h1>Công cụ tính lương Gross - Net</h1>
+            <p>Cập nhật theo chính sách mới nhất 2026</p>
+            <p>Biểu thuế TNCN 5 bậc, Giảm trừ gia cảnh, Lương tối thiểu vùng</p>
+        </header>
+
+        <main class="calculator-card">
+            <div class="year-toggle-container">
+                <div class="year-toggle">
+                    <button id="btn-year-2025" class="toggle-btn active" onclick="switchYear(2025)">Hiện hành
+                        (2025)</button>
+                    <button id="btn-year-2026" class="toggle-btn" onclick="switchYear('2026-h1')">Dự thảo (2026)</button>
+                    <button id="btn-compare" class="toggle-btn" onclick="switchToCompare()">So sánh</button>
+                </div>
+                <div id="period-2026-container" class="period-toggle hidden">
+                    <label>Thời điểm áp dụng:</label>
+                    <select id="period-2026" onchange="switchPeriod2026(this.value)">
+                        <option value="2026-h1">Trước 1/7/2026 (Giảm trừ mới, biểu thuế 7 bậc cũ)</option>
+                        <option value="2026-h2">Từ 1/7/2026 (Giảm trừ mới + biểu thuế 5 bậc mới)</option>
+                    </select>
+                </div>
+                <p id="policy-note" class="policy-note">Giảm trừ gia cảnh: Bản thân 11tr/tháng, Phụ thuộc 4.4tr/tháng
+                </p>
+            </div>
+
+            <div class="input-section">
+                <div class="mode-toggle">
+                    <button id="btn-gross-net" class="toggle-btn active" onclick="switchMode('gross-net')">GROSS &rarr;
+                        NET</button>
+                    <button id="btn-net-gross" class="toggle-btn" onclick="switchMode('net-gross')">NET &rarr;
+                        GROSS</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="income">
+                        Thu nhập (VNĐ)
+                        <span class="tooltip-trigger" data-tooltip="Lương Gross là tổng thu nhập trước khi trừ các khoản bảo hiểm và thuế. Lương Net là số tiền thực nhận sau khi đã trừ.">?</span>
+                    </label>
+                    <input type="text" id="income" placeholder="Nhập mức lương của bạn"
+                        oninput="formatCurrencyInput(this)">
+                </div>
+
+                <div class="form-group">
+                    <label for="dependents">
+                        Số người phụ thuộc
+                        <span class="tooltip-trigger" data-tooltip="Người phụ thuộc bao gồm: con dưới 18 tuổi, con trên 18 tuổi bị tàn tật, cha mẹ hết tuổi lao động không có thu nhập. Mỗi người được giảm trừ 4.4tr/tháng (2025) hoặc 6.2tr/tháng (2026 dự thảo).">?</span>
+                    </label>
+                    <input type="number" id="dependents" value="0" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Mức lương đóng bảo hiểm
+                        <span class="tooltip-trigger" data-tooltip="BHXH (8%): Bảo hiểm xã hội - hưu trí, thai sản, ốm đau. BHYT (1.5%): Bảo hiểm y tế - chi phí khám chữa bệnh. BHTN (1%): Bảo hiểm thất nghiệp - trợ cấp khi mất việc. Tổng: 10.5% lương đóng BH.">?</span>
+                    </label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="insurance-base" value="official" checked
+                                onchange="toggleInsuranceInput()">
+                            Trên lương chính thức
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="insurance-base" value="other" onchange="toggleInsuranceInput()">
+                            Khác
+                        </label>
+                    </div>
+                    <input type="text" id="insurance-salary" class="hidden" placeholder="Nhập mức lương đóng BH"
+                        oninput="formatCurrencyInput(this)">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Vùng lương tối thiểu
+                        <span id="region-tooltip" class="tooltip-trigger" data-tooltip="Vùng I: 4.96tr | Vùng II: 4.41tr | Vùng III: 3.86tr | Vùng IV: 3.25tr. Ảnh hưởng đến mức đóng BHTN tối đa (20 x lương tối thiểu vùng).">?</span>
+                    </label>
+                    <div class="radio-group region-group">
+                        <label class="radio-label" data-tooltip="TP.HCM, Hà Nội, Hải Phòng, Đà Nẵng..."><input type="radio" name="region" value="1" checked> I</label>
+                        <label class="radio-label" data-tooltip="Các thành phố trực thuộc tỉnh"><input type="radio" name="region" value="2"> II</label>
+                        <label class="radio-label" data-tooltip="Thị xã, huyện thuộc tỉnh"><input type="radio" name="region" value="3"> III</label>
+                        <label class="radio-label" data-tooltip="Các vùng nông thôn còn lại"><input type="radio" name="region" value="4"> IV</label>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-calculate" id="btn-calculate" onclick="calculate()">
+                        <span class="btn-text">Tính toán</span>
+                        <span class="btn-loading">
+                            <span class="spinner"></span>
+                            Đang tính...
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="result-section" id="result-section">
+                <div class="summary-card">
+                    <div class="summary-item">
+                        <span class="label">Lương GROSS</span>
+                        <span class="value" id="res-gross">0</span>
+                    </div>
+                    <div class="summary-item highlight">
+                        <span class="label">Lương NET</span>
+                        <span class="value" id="res-net">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Thuế TNCN</span>
+                        <span class="value" id="res-pit">0</span>
+                    </div>
+                </div>
+
+                <div class="details-table">
+                    <h3>Diễn giải chi tiết (VNĐ)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Khoản mục</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Lương GROSS</td>
+                                <td id="detail-gross" class="text-right">0</td>
+                            </tr>
+                            <tr>
+                                <td>Bảo hiểm xã hội (8%)</td>
+                                <td id="detail-bhxh" class="text-right">-</td>
+                            </tr>
+                            <tr>
+                                <td>Bảo hiểm y tế (1.5%)</td>
+                                <td id="detail-bhyt" class="text-right">-</td>
+                            </tr>
+                            <tr>
+                                <td>Bảo hiểm thất nghiệp (1%)</td>
+                                <td id="detail-bhtn" class="text-right">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Thu nhập trước thuế</strong></td>
+                                <td id="detail-pre-tax" class="text-right bold">0</td>
+                            </tr>
+                            <tr>
+                                <td>Giảm trừ gia cảnh bản thân</td>
+                                <td id="detail-personal-deduction" class="text-right">-</td>
+                            </tr>
+                            <tr>
+                                <td>Giảm trừ người phụ thuộc</td>
+                                <td id="detail-dependents" class="text-right">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Thu nhập chịu thuế</strong></td>
+                                <td id="detail-taxable" class="text-right bold">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Thuế thu nhập cá nhân (*)</strong></td>
+                                <td id="detail-pit" class="text-right bold">0</td>
+                            </tr>
+                            <tr class="final-row">
+                                <td><strong>Lương NET</strong></td>
+                                <td id="detail-net" class="text-right bold">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="note">(*) Chi tiết thuế TNCN theo bậc thang sẽ được hiển thị nếu có.</p>
+                </div>
+
+                <div id="pit-details-container" class="details-table hidden" style="margin-top: 20px;">
+                    <h3>Chi tiết thuế Thu nhập cá nhân (VNĐ)</h3>
+                    <table id="pit-details-table">
+                        <thead>
+                            <tr>
+                                <th>Mức chịu thuế</th>
+                                <th>Thuế suất</th>
+                                <th>Tiền nộp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Generated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Comparison Section -->
+            <div id="comparison-section" class="comparison-section hidden">
+                <h2>So sánh chính sách thuế TNCN</h2>
+                <div class="comparison-table-wrapper">
+                    <table class="comparison-table comparison-table-3col">
+                        <thead>
+                            <tr>
+                                <th>Khoản mục</th>
+                                <th>Hiện hành<br><small>(2025)</small></th>
+                                <th>Trước 1/7/2026<br><small>(Giảm trừ mới)</small></th>
+                                <th>Từ 1/7/2026<br><small>(Biểu thuế mới)</small></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Lương GROSS</strong></td>
+                                <td id="comp-gross-2025" class="text-right">0</td>
+                                <td id="comp-gross-2026h1" class="text-right">0</td>
+                                <td id="comp-gross-2026h2" class="text-right">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lương NET</strong></td>
+                                <td id="comp-net-2025" class="text-right">0</td>
+                                <td id="comp-net-2026h1" class="text-right diff-value">0</td>
+                                <td id="comp-net-2026h2" class="text-right diff-value">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Thuế TNCN</strong></td>
+                                <td id="comp-tax-2025" class="text-right">0</td>
+                                <td id="comp-tax-2026h1" class="text-right diff-value">0</td>
+                                <td id="comp-tax-2026h2" class="text-right diff-value">0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Chênh lệch NET</strong><br><small>so với 2025</small></td>
+                                <td class="text-right">-</td>
+                                <td id="comp-net-diff-h1" class="text-right diff-value">0</td>
+                                <td id="comp-net-diff-h2" class="text-right diff-value">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="comparison-note">* Giảm trừ bản thân: 2025 = 11tr, 2026 = 15.5tr | Giảm trừ phụ thuộc: 2025 = 4.4tr, 2026 = 6.2tr</p>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
