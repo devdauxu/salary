@@ -37,28 +37,15 @@
     <div class="container">
         <header class="header">
             <h1>Công cụ tính lương Gross - Net</h1>
-            <p>Cập nhật theo chính sách mới nhất 2026</p>
+            <p>Theo chính sách thuế TNCN áp dụng từ 01/01/2026</p>
             <p>Biểu thuế TNCN 5 bậc, Giảm trừ gia cảnh, Lương tối thiểu vùng</p>
         </header>
 
         <main class="calculator-card">
-            <div class="year-toggle-container">
-                <div class="year-toggle">
-                    <button id="btn-year-2025" class="toggle-btn active" onclick="switchYear(2025)">Hiện hành
-                        (2025)</button>
-                    <button id="btn-year-2026" class="toggle-btn" onclick="switchYear('2026-h1')">Dự thảo (2026)</button>
-                    <button id="btn-compare" class="toggle-btn" onclick="switchToCompare()">So sánh</button>
-                </div>
-                <div id="period-2026-container" class="period-toggle hidden">
-                    <label>Thời điểm áp dụng:</label>
-                    <select id="period-2026" onchange="switchPeriod2026(this.value)">
-                        <option value="2026-h1">Trước 1/7/2026 (Giảm trừ mới, biểu thuế 7 bậc cũ)</option>
-                        <option value="2026-h2">Từ 1/7/2026 (Giảm trừ mới + biểu thuế 5 bậc mới)</option>
-                    </select>
-                </div>
-                <p id="policy-note" class="policy-note">Giảm trừ gia cảnh: Bản thân 11tr/tháng, Phụ thuộc 4.4tr/tháng
-                </p>
-            </div>
+            <p class="policy-note">
+                Áp dụng từ 01/01/2026: Giảm trừ bản thân <strong>15.5tr</strong>/tháng,
+                Phụ thuộc <strong>6.2tr</strong>/tháng | Biểu thuế 5 bậc mới
+            </p>
 
             <div class="input-section">
                 <div class="mode-toggle">
@@ -80,7 +67,7 @@
                 <div class="form-group">
                     <label for="dependents">
                         Số người phụ thuộc
-                        <span class="tooltip-trigger" data-tooltip="Người phụ thuộc bao gồm: con dưới 18 tuổi, con trên 18 tuổi bị tàn tật, cha mẹ hết tuổi lao động không có thu nhập. Mỗi người được giảm trừ 4.4tr/tháng (2025) hoặc 6.2tr/tháng (2026 dự thảo).">?</span>
+                        <span class="tooltip-trigger" data-tooltip="Người phụ thuộc bao gồm: con dưới 18 tuổi, con trên 18 tuổi bị tàn tật, cha mẹ hết tuổi lao động không có thu nhập. Mỗi người được giảm trừ 6.2tr/tháng.">?</span>
                     </label>
                     <input type="number" id="dependents" value="0" min="0">
                 </div>
@@ -108,7 +95,7 @@
                 <div class="form-group">
                     <label>
                         Vùng lương tối thiểu
-                        <span id="region-tooltip" class="tooltip-trigger" data-tooltip="Vùng I: 4.96tr | Vùng II: 4.41tr | Vùng III: 3.86tr | Vùng IV: 3.25tr. Ảnh hưởng đến mức đóng BHTN tối đa (20 x lương tối thiểu vùng).">?</span>
+                        <span class="tooltip-trigger" data-tooltip="Vùng I: 5.31tr | Vùng II: 4.73tr | Vùng III: 4.14tr | Vùng IV: 3.70tr. Ảnh hưởng đến mức đóng BHTN tối đa (20 x lương tối thiểu vùng).">?</span>
                     </label>
                     <div class="radio-group region-group">
                         <label class="radio-label" data-tooltip="TP.HCM, Hà Nội, Hải Phòng, Đà Nẵng..."><input type="radio" name="region" value="1" checked> I</label>
@@ -217,49 +204,6 @@
                 </div>
             </div>
 
-            <!-- Comparison Section -->
-            <div id="comparison-section" class="comparison-section hidden">
-                <h2>So sánh chính sách thuế TNCN</h2>
-                <div class="comparison-table-wrapper">
-                    <table class="comparison-table comparison-table-3col">
-                        <thead>
-                            <tr>
-                                <th>Khoản mục</th>
-                                <th>Hiện hành<br><small>(2025)</small></th>
-                                <th>Trước 1/7/2026<br><small>(Giảm trừ mới)</small></th>
-                                <th>Từ 1/7/2026<br><small>(Biểu thuế mới)</small></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Lương GROSS</strong></td>
-                                <td id="comp-gross-2025" class="text-right">0</td>
-                                <td id="comp-gross-2026h1" class="text-right">0</td>
-                                <td id="comp-gross-2026h2" class="text-right">0</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Lương NET</strong></td>
-                                <td id="comp-net-2025" class="text-right">0</td>
-                                <td id="comp-net-2026h1" class="text-right diff-value">0</td>
-                                <td id="comp-net-2026h2" class="text-right diff-value">0</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Thuế TNCN</strong></td>
-                                <td id="comp-tax-2025" class="text-right">0</td>
-                                <td id="comp-tax-2026h1" class="text-right diff-value">0</td>
-                                <td id="comp-tax-2026h2" class="text-right diff-value">0</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Chênh lệch NET</strong><br><small>so với 2025</small></td>
-                                <td class="text-right">-</td>
-                                <td id="comp-net-diff-h1" class="text-right diff-value">0</td>
-                                <td id="comp-net-diff-h2" class="text-right diff-value">0</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <p class="comparison-note">* Giảm trừ bản thân: 2025 = 11tr, 2026 = 15.5tr | Giảm trừ phụ thuộc: 2025 = 4.4tr, 2026 = 6.2tr</p>
-            </div>
         </main>
     </div>
     <script src="script.js"></script>

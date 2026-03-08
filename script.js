@@ -86,29 +86,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const BASE_SALARY = 2340000;
 
-// Lương tối thiểu vùng 2025
-const REGION_MIN_WAGE_2025 = {
-    1: 4960000,
-    2: 4410000,
-    3: 3860000,
-    4: 3250000
-};
-
-// Lương tối thiểu vùng 2026 (áp dụng từ 1/7/2025)
-const REGION_MIN_WAGE_2026 = {
+// Lương tối thiểu vùng (áp dụng từ 01/01/2026)
+const REGION_MIN_WAGE = {
     1: 5310000,
     2: 4730000,
     3: 4140000,
     4: 3700000
 };
-
-// Hàm lấy lương tối thiểu vùng theo năm
-function getRegionMinWage(year) {
-    if (String(year).startsWith('2026')) {
-        return REGION_MIN_WAGE_2026;
-    }
-    return REGION_MIN_WAGE_2025;
-}
 
 // Insurance Rates
 const INSURANCE_RATES = {
@@ -119,128 +103,20 @@ const INSURANCE_RATES = {
 
 const INSURANCE_MAX_SALARY_BHXH_BHYT = 20 * BASE_SALARY; // Capped at 20 * Base Salary
 
-// Tax Configuration
+// Tax Configuration (áp dụng từ 01/01/2026 - biểu thuế 5 bậc mới)
 const TAX_CONFIG = {
-    2025: {
-        personalDeduction: 11000000,
-        dependentDeduction: 4400000,
-        brackets: [
-            { max: 5000000, rate: 0.05, subtract: 0 },
-            { max: 10000000, rate: 0.10, subtract: 250000 },
-            { max: 18000000, rate: 0.15, subtract: 750000 },
-            { max: 32000000, rate: 0.20, subtract: 1650000 },
-            { max: 52000000, rate: 0.25, subtract: 3250000 },
-            { max: 80000000, rate: 0.30, subtract: 5850000 },
-            { max: Infinity, rate: 0.35, subtract: 9850000 }
-        ]
-    },
-    // Dự thảo 2026 - Trước 1/7/2026: Chỉ tăng giảm trừ, giữ biểu thuế 7 bậc cũ
-    '2026-h1': {
-        personalDeduction: 15500000,
-        dependentDeduction: 6200000,
-        brackets: [
-            { max: 5000000, rate: 0.05, subtract: 0 },
-            { max: 10000000, rate: 0.10, subtract: 250000 },
-            { max: 18000000, rate: 0.15, subtract: 750000 },
-            { max: 32000000, rate: 0.20, subtract: 1650000 },
-            { max: 52000000, rate: 0.25, subtract: 3250000 },
-            { max: 80000000, rate: 0.30, subtract: 5850000 },
-            { max: Infinity, rate: 0.35, subtract: 9850000 }
-        ]
-    },
-    // Dự thảo 2026 - Từ 1/7/2026: Giảm trừ mới + biểu thuế 5 bậc mới
-    '2026-h2': {
-        personalDeduction: 15500000,
-        dependentDeduction: 6200000,
-        brackets: [
-            { max: 10000000, rate: 0.05, subtract: 0 },
-            { max: 30000000, rate: 0.10, subtract: 500000 },
-            { max: 60000000, rate: 0.20, subtract: 3500000 },
-            { max: 100000000, rate: 0.30, subtract: 9500000 },
-            { max: Infinity, rate: 0.35, subtract: 14500000 }
-        ]
-    }
+    personalDeduction: 15500000,
+    dependentDeduction: 6200000,
+    brackets: [
+        { max: 10000000, rate: 0.05, subtract: 0 },
+        { max: 30000000, rate: 0.10, subtract: 500000 },
+        { max: 60000000, rate: 0.20, subtract: 3500000 },
+        { max: 100000000, rate: 0.30, subtract: 9500000 },
+        { max: Infinity, rate: 0.35, subtract: 14500000 }
+    ]
 };
 
-let currentYear = 2025;
 let currentMode = 'gross-net'; // 'gross-net' or 'net-gross'
-let isComparisonMode = false;
-
-function switchYear(year) {
-    isComparisonMode = false;
-    currentYear = year;
-    const is2026 = String(year).startsWith('2026');
-
-    document.getElementById('btn-year-2025').classList.toggle('active', year === 2025);
-    document.getElementById('btn-year-2026').classList.toggle('active', is2026);
-    document.getElementById('btn-compare').classList.remove('active');
-
-    // Show/hide period selector for 2026
-    const periodContainer = document.getElementById('period-2026-container');
-    if (is2026) {
-        periodContainer.classList.remove('hidden');
-        document.getElementById('period-2026').value = year;
-    } else {
-        periodContainer.classList.add('hidden');
-    }
-
-    // Show regular result, hide comparison
-    document.getElementById('result-section').classList.remove('hidden');
-    document.getElementById('comparison-section').classList.add('hidden');
-
-    updatePolicyNote(year);
-    calculate();
-}
-
-function switchPeriod2026(period) {
-    currentYear = period;
-    updatePolicyNote(period);
-    calculate();
-}
-
-function updatePolicyNote(year) {
-    const config = TAX_CONFIG[year];
-    let note = `Giảm trừ gia cảnh: Bản thân <strong>${formatCurrency(config.personalDeduction / 1000000)}tr</strong>/tháng, Phụ thuộc <strong>${formatCurrency(config.dependentDeduction / 1000000)}tr</strong>/tháng`;
-
-    if (year === '2026-h1') {
-        note += '<br><small>Áp dụng trước 1/7/2026: Giảm trừ mới, biểu thuế 7 bậc cũ</small>';
-    } else if (year === '2026-h2') {
-        note += '<br><small>Áp dụng từ 1/7/2026: Giảm trừ mới + biểu thuế 5 bậc mới</small>';
-    }
-
-    document.getElementById('policy-note').innerHTML = note;
-
-    // Cập nhật tooltip vùng lương tối thiểu
-    updateRegionTooltip(year);
-}
-
-function updateRegionTooltip(year) {
-    const regionWage = getRegionMinWage(year);
-    const tooltip = `Vùng I: ${(regionWage[1] / 1000000).toFixed(2)}tr | Vùng II: ${(regionWage[2] / 1000000).toFixed(2)}tr | Vùng III: ${(regionWage[3] / 1000000).toFixed(2)}tr | Vùng IV: ${(regionWage[4] / 1000000).toFixed(2)}tr. Ảnh hưởng đến mức đóng BHTN tối đa (20 x lương tối thiểu vùng).`;
-
-    const tooltipEl = document.getElementById('region-tooltip');
-    if (tooltipEl) {
-        tooltipEl.setAttribute('data-tooltip', tooltip);
-    }
-}
-
-function switchToCompare() {
-    isComparisonMode = true;
-    document.getElementById('btn-year-2025').classList.remove('active');
-    document.getElementById('btn-year-2026').classList.remove('active');
-    document.getElementById('btn-compare').classList.add('active');
-
-    // Hide period selector
-    document.getElementById('period-2026-container').classList.add('hidden');
-
-    // Hide regular result, show comparison
-    document.getElementById('result-section').classList.add('hidden');
-    document.getElementById('comparison-section').classList.remove('hidden');
-
-    document.getElementById('policy-note').innerHTML = 'So sánh 3 giai đoạn: Hiện hành (2025), Trước 1/7/2026, và Từ 1/7/2026';
-
-    calculateComparison();
-}
 
 function switchMode(mode) {
     currentMode = mode;
@@ -289,7 +165,7 @@ function calculatePIT(taxableIncome) {
     if (taxableIncome <= 0) return 0;
 
     let totalTax = 0;
-    const brackets = TAX_CONFIG[currentYear].brackets;
+    const brackets = TAX_CONFIG.brackets;
     for (let bracket of brackets) {
         if (taxableIncome <= bracket.max) {
             totalTax = taxableIncome * bracket.rate - bracket.subtract;
@@ -304,7 +180,7 @@ function getTaxBreakdown(taxableIncome) {
 
     const breakdown = [];
     let previousMax = 0;
-    const brackets = TAX_CONFIG[currentYear].brackets;
+    const brackets = TAX_CONFIG.brackets;
 
     for (let i = 0; i < brackets.length; i++) {
         const bracket = brackets[i];
@@ -321,8 +197,6 @@ function getTaxBreakdown(taxableIncome) {
 
         // Actually, simpler logic:
         // Calculate tax for this specific chunk.
-
-        let incomeInBracket = 0;
 
         if (taxableIncome > previousMax) {
             const maxInThisBracket = (currentMax === Infinity ? taxableIncome : currentMax) - previousMax;
@@ -361,12 +235,6 @@ function calculate() {
 
     // Use setTimeout to allow the UI to update before heavy calculation
     setTimeout(() => {
-        if (isComparisonMode) {
-            calculateComparison();
-            hideLoading();
-            return;
-        }
-
         let gross, net;
 
         if (currentMode === 'gross-net') {
@@ -385,81 +253,6 @@ function calculate() {
     }, 300); // Small delay for visual feedback
 }
 
-function calculateComparison() {
-    const income = parseCurrency(document.getElementById('income').value);
-    const dependents = parseInt(document.getElementById('dependents').value) || 0;
-    const region = document.querySelector('input[name="region"]:checked').value;
-    const insuranceType = document.querySelector('input[name="insurance-base"]:checked').value;
-    let insuranceSalaryInput = parseCurrency(document.getElementById('insurance-salary').value);
-
-    if (income === 0) return;
-
-    const savedYear = currentYear;
-
-    // Calculate for 2025
-    currentYear = 2025;
-    let result2025;
-    if (currentMode === 'gross-net') {
-        result2025 = calculateFromGross(income, dependents, region, insuranceType, insuranceSalaryInput);
-    } else {
-        result2025 = calculateFromNet(income, dependents, region, insuranceType, insuranceSalaryInput);
-    }
-
-    // Calculate for 2026-h1 (Trước 1/7/2026 - giảm trừ mới, biểu thuế cũ)
-    currentYear = '2026-h1';
-    let result2026h1;
-    if (currentMode === 'gross-net') {
-        result2026h1 = calculateFromGross(income, dependents, region, insuranceType, insuranceSalaryInput);
-    } else {
-        result2026h1 = calculateFromNet(income, dependents, region, insuranceType, insuranceSalaryInput);
-    }
-
-    // Calculate for 2026-h2 (Từ 1/7/2026 - giảm trừ mới + biểu thuế mới)
-    currentYear = '2026-h2';
-    let result2026h2;
-    if (currentMode === 'gross-net') {
-        result2026h2 = calculateFromGross(income, dependents, region, insuranceType, insuranceSalaryInput);
-    } else {
-        result2026h2 = calculateFromNet(income, dependents, region, insuranceType, insuranceSalaryInput);
-    }
-
-    // Restore current year
-    currentYear = savedYear;
-
-    // Update comparison UI
-    updateComparisonUI(result2025, result2026h1, result2026h2);
-}
-
-function updateComparisonUI(result2025, result2026h1, result2026h2) {
-    // Gross
-    document.getElementById('comp-gross-2025').textContent = formatCurrency(Math.round(result2025.gross));
-    document.getElementById('comp-gross-2026h1').textContent = formatCurrency(Math.round(result2026h1.gross));
-    document.getElementById('comp-gross-2026h2').textContent = formatCurrency(Math.round(result2026h2.gross));
-
-    // Net
-    document.getElementById('comp-net-2025').textContent = formatCurrency(Math.round(result2025.net));
-    document.getElementById('comp-net-2026h1').textContent = formatCurrency(Math.round(result2026h1.net));
-    document.getElementById('comp-net-2026h2').textContent = formatCurrency(Math.round(result2026h2.net));
-
-    // Tax
-    document.getElementById('comp-tax-2025').textContent = formatCurrency(Math.round(result2025.pit));
-    document.getElementById('comp-tax-2026h1').textContent = formatCurrency(Math.round(result2026h1.pit));
-    document.getElementById('comp-tax-2026h2').textContent = formatCurrency(Math.round(result2026h2.pit));
-
-    // Net difference vs 2025
-    const netDiffH1 = result2026h1.net - result2025.net;
-    const netDiffH1El = document.getElementById('comp-net-diff-h1');
-    netDiffH1El.textContent = (netDiffH1 >= 0 ? '+' : '') + formatCurrency(Math.round(netDiffH1));
-    netDiffH1El.classList.toggle('positive', netDiffH1 > 0);
-    netDiffH1El.classList.toggle('negative', netDiffH1 < 0);
-
-    const netDiffH2 = result2026h2.net - result2025.net;
-    const netDiffH2El = document.getElementById('comp-net-diff-h2');
-    netDiffH2El.textContent = (netDiffH2 >= 0 ? '+' : '') + formatCurrency(Math.round(netDiffH2));
-    netDiffH2El.classList.toggle('positive', netDiffH2 > 0);
-    netDiffH2El.classList.toggle('negative', netDiffH2 < 0);
-}
-
 function calculateFromGross(gross, dependents, region, insuranceType, insuranceSalaryInput) {
     // 1. Calculate Insurance Salary Base
     let insuranceSalary = gross;
@@ -469,9 +262,8 @@ function calculateFromGross(gross, dependents, region, insuranceType, insuranceS
 
     // Cap BHXH/BHYT
     const cappedBhxhBhyt = Math.min(insuranceSalary, INSURANCE_MAX_SALARY_BHXH_BHYT);
-    // Cap BHTN (Region based) - sử dụng lương tối thiểu vùng theo năm
-    const regionMinWage = getRegionMinWage(currentYear);
-    const maxBhtn = 20 * regionMinWage[region];
+    // Cap BHTN (Region based)
+    const maxBhtn = 20 * REGION_MIN_WAGE[region];
     const cappedBhtn = Math.min(insuranceSalary, maxBhtn);
 
     const bhxh = cappedBhxhBhyt * INSURANCE_RATES.bhxh;
@@ -481,8 +273,7 @@ function calculateFromGross(gross, dependents, region, insuranceType, insuranceS
 
     // 2. Calculate Taxable Income
     const preTaxIncome = gross - totalInsurance;
-    const config = TAX_CONFIG[currentYear];
-    const totalDeduction = config.personalDeduction + (dependents * config.dependentDeduction);
+    const totalDeduction = TAX_CONFIG.personalDeduction + (dependents * TAX_CONFIG.dependentDeduction);
     const taxableIncome = Math.max(0, preTaxIncome - totalDeduction);
 
     // 3. Calculate PIT
@@ -563,8 +354,8 @@ function updateUI(data) {
     document.getElementById('detail-bhyt').textContent = formatCurrency(Math.round(data.bhyt));
     document.getElementById('detail-bhtn').textContent = formatCurrency(Math.round(data.bhtn));
     document.getElementById('detail-pre-tax').textContent = formatCurrency(Math.round(data.preTaxIncome));
-    document.getElementById('detail-personal-deduction').textContent = formatCurrency(TAX_CONFIG[currentYear].personalDeduction);
-    document.getElementById('detail-dependents').textContent = formatCurrency(Math.round(data.totalDeduction - TAX_CONFIG[currentYear].personalDeduction));
+    document.getElementById('detail-personal-deduction').textContent = formatCurrency(TAX_CONFIG.personalDeduction);
+    document.getElementById('detail-dependents').textContent = formatCurrency(Math.round(data.totalDeduction - TAX_CONFIG.personalDeduction));
     document.getElementById('detail-taxable').textContent = formatCurrency(Math.round(data.taxableIncome));
     document.getElementById('detail-pit').textContent = formatCurrency(Math.round(data.pit));
     document.getElementById('detail-net').textContent = formatCurrency(Math.round(data.net));

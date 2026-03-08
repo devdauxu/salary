@@ -212,40 +212,12 @@ body {
 }
 
 /* ============================================
-   Year Toggle - Pill Buttons
+   Policy Note
    ============================================ */
 
-.year-toggle-container {
+.policy-note {
     margin-bottom: 28px;
     text-align: center;
-}
-
-.year-toggle {
-    display: inline-flex;
-    background-color: var(--bg-alt);
-    border-radius: var(--radius-pill);
-    padding: 8px;
-    gap: 6px;
-    border: var(--border-width) solid var(--border-color);
-    box-shadow: 5px 5px 0 var(--border-color);
-    transform: rotate(0.5deg);
-    transition: all 0.3s var(--transition-bounce);
-}
-
-.year-toggle:hover {
-    transform: rotate(0deg);
-    box-shadow: 6px 6px 0 var(--border-color);
-}
-
-.year-toggle .toggle-btn {
-    padding: 12px 24px;
-    font-size: 0.95rem;
-    border-radius: var(--radius-pill);
-    font-weight: var(--font-weight-bold);
-    transition: all 0.25s var(--transition-bounce);
-}
-
-.policy-note {
     font-size: 0.95rem;
     color: var(--text-secondary);
     font-weight: var(--font-weight-medium);
@@ -268,47 +240,6 @@ body {
     margin-top: 6px;
     font-size: 0.85rem;
     color: var(--text-muted);
-}
-
-/* Period Toggle for 2026 */
-.period-toggle {
-    margin-top: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.period-toggle label {
-    font-weight: var(--font-weight-bold);
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.period-toggle select {
-    padding: 10px 16px;
-    border: var(--border-width) solid var(--border-color);
-    border-radius: var(--radius-lg);
-    font-size: 0.9rem;
-    font-weight: var(--font-weight-medium);
-    background: var(--bg-card);
-    cursor: pointer;
-    box-shadow: 3px 3px 0 var(--border-color);
-    transition: all 0.25s var(--transition-bounce);
-    font-family: var(--font-family);
-    color: var(--text-primary);
-}
-
-.period-toggle select:hover {
-    box-shadow: 5px 5px 0 var(--border-color);
-    transform: translateY(-2px);
-}
-
-.period-toggle select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 4px 4px 0 var(--primary);
 }
 
 /* ============================================
@@ -734,116 +665,6 @@ body {
 }
 
 /* ============================================
-   Comparison Section
-   ============================================ */
-
-.comparison-section {
-    margin-top: 32px;
-    padding-top: 32px;
-    border-top: 3px dashed var(--border-color);
-}
-
-.comparison-section h2 {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin-bottom: 24px;
-    text-align: center;
-    position: relative;
-    display: inline-block;
-    width: 100%;
-}
-
-.comparison-section h2::before {
-    content: '📊';
-    margin-right: 10px;
-}
-
-.comparison-table-wrapper {
-    overflow-x: auto;
-    border-radius: var(--radius-xl);
-    border: var(--border-width) solid var(--border-color);
-    box-shadow: 6px 6px 0 var(--border-color);
-    transition: all 0.3s var(--transition-smooth);
-}
-
-.comparison-table-wrapper:hover {
-    box-shadow: 8px 8px 0 var(--border-color);
-    transform: translateY(-2px);
-}
-
-.comparison-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--bg-card);
-}
-
-.comparison-table th,
-.comparison-table td {
-    padding: 16px 20px;
-    border: none;
-    text-align: left;
-    border-bottom: 1.5px solid var(--bg);
-}
-
-.comparison-table th {
-    background: var(--primary);
-    color: white;
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-}
-
-.comparison-table th:first-child {
-    border-radius: 0;
-}
-
-.comparison-table th:last-child {
-    border-radius: 0;
-}
-
-.comparison-table tbody tr:nth-child(odd) {
-    background-color: var(--bg);
-}
-
-.comparison-table tbody tr:hover {
-    background-color: var(--primary-soft);
-}
-
-.comparison-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.comparison-table .diff-value.positive {
-    color: #00B894;
-    font-weight: 800;
-    background: linear-gradient(135deg, rgba(129, 236, 236, 0.3) 0%, rgba(85, 239, 196, 0.3) 100%);
-    padding: 4px 10px;
-    border-radius: var(--radius-sm);
-}
-
-.comparison-table .diff-value.negative {
-    color: #D63031;
-    font-weight: 800;
-    background: linear-gradient(135deg, rgba(255, 118, 117, 0.2) 0%, rgba(253, 121, 168, 0.2) 100%);
-    padding: 4px 10px;
-    border-radius: var(--radius-sm);
-}
-
-.comparison-note {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    font-style: italic;
-    text-align: center;
-    margin-top: 16px;
-    padding: 12px 20px;
-    background: var(--bg);
-    border-radius: var(--radius-md);
-    border: 1.5px dashed var(--text-muted);
-}
-
-/* ============================================
    Animations & Micro-interactions
    ============================================ */
 
@@ -872,15 +693,6 @@ body {
 
     .calculator-card {
         padding: 24px 20px;
-    }
-
-    .year-toggle {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .year-toggle .toggle-btn {
-        width: 100%;
     }
 
     .mode-toggle {
@@ -922,11 +734,6 @@ body {
         display: none;
     }
 
-    .comparison-table th,
-    .comparison-table td {
-        padding: 12px 14px;
-        font-size: 0.85rem;
-    }
 }
 
 @media (max-width: 480px) {
@@ -1286,7 +1093,6 @@ button:focus-visible {
 
     .btn-calculate,
     .mode-toggle,
-    .year-toggle-container,
     .theme-toggle {
         display: none;
     }
